@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Planificateur d’emploi du temps</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Planning">
+<meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1117" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1b1f2a;--mu:#6b7280;--bd:#e3e6ee;--ac:#4f46e5;--ac2:#eef0ff;--ok:#16a34a;--er:#dc2626;--fx:#4f46e5;--bs:#94a3b8;--fl:#0d9488;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1117;--card:#181b24;--tx:#e8eaf0;--mu:#98a1b3;--bd:#2a2f3c;--ac:#818cf8;--ac2:#23264a;--ok:#4ade80;--er:#f87171;--fx:#6366f1;--bs:#64748b;--fl:#14b8a6;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1117;--card:#181b24;--tx:#e8eaf0;--mu:#98a1b3;--bd:#2a2f3c;--ac:#818cf8;--ac2:#23264a;--ok:#4ade80;--er:#f87171;--fx:#6366f1;--bs:#64748b;--fl:#14b8a6;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+#app{max-width:980px;margin:0 auto;padding:20px 16px 40px}
+header{display:flex;gap:14px;align-items:center;margin-bottom:18px}
+.logo{font-size:30px;background:var(--ac2);border-radius:14px;width:52px;height:52px;display:grid;place-items:center}
+h1{font-size:20px;margin:0}header p{margin:2px 0 0;color:var(--mu);font-size:13px}
+h2{margin:0 0 4px;font-size:18px}.lead{color:var(--mu);margin:0 0 16px}
+.steps{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px}
+.st{flex:1;min-width:max-content;display:flex;align-items:center;gap:8px;border:1px solid var(--bd);background:var(--card);color:var(--mu);padding:9px 12px;border-radius:12px;font:inherit;font-size:13px;cursor:pointer}
+.st span{width:22px;height:22px;border-radius:50%;background:var(--bd);color:var(--tx);display:grid;place-items:center;font-size:12px;font-weight:600}
+.st.on{border-color:var(--ac);color:var(--tx);background:var(--ac2)}.st.on span{background:var(--ac);color:#fff}
+.st.done span{background:var(--ok);color:#fff}.st:disabled{opacity:.5;cursor:not-allowed}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mu);flex:1;min-width:130px}
+label.lb{margin-bottom:6px}
+input,select{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:9px 10px;min-width:0}
+input,select{font-size:16px}
+body{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;min-height:100vh}
+button{touch-action:manipulation}
+input:focus,select:focus{outline:2px solid var(--ac);outline-offset:0}
+input.sm{width:70px;display:inline-block;margin:0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chip{flex:none;min-width:0;display:block;position:relative}
+.chip input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.chip span{display:block;padding:7px 12px;border:1px solid var(--bd);border-radius:999px;background:var(--bg);color:var(--tx);font-size:13px}
+.chip input:checked+span{background:var(--ac);border-color:var(--ac);color:#fff}
+.chip input:focus-visible+span{outline:2px solid var(--ac);outline-offset:2px}
+.hint{font-size:12px;color:var(--mu);margin:-4px 0 12px}
+.li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;background:var(--bg)}
+.li small{color:var(--mu);display:block}
+.x{border:0;background:none;color:var(--mu);font-size:18px;cursor:pointer;padding:4px 8px}.x:hover{color:var(--er)}
+button{font:inherit;cursor:pointer}
+.pri,.sec,.gh{border-radius:10px;padding:10px 16px;border:1px solid var(--ac)}
+.pri{background:var(--ac);color:#fff}.sec{background:var(--ac2);color:var(--tx)}.gh{background:none;border-color:var(--bd);color:var(--tx)}
+.foot{display:flex;justify-content:space-between;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--bd)}
+.recap{background:var(--ac2);border-radius:10px;padding:10px 12px;font-size:13px;margin:6px 0 0}
+.err{color:var(--er);font-size:13px;min-height:18px;margin:8px 0 0}
+.empty{color:var(--mu);text-align:center;padding:14px;border:1px dashed var(--bd);border-radius:10px;margin-bottom:10px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.bar h2{margin:0}.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tag{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--bd);color:var(--mu)}.tag.on{border-color:var(--ok);color:var(--ok)}
+.wrap{overflow-x:auto;border:1px solid var(--bd);border-radius:12px}
+.grid{display:flex;min-width:760px}
+.hr{width:38px;position:relative;margin-top:44px;flex:none}.hr i{position:absolute;right:6px;font-size:11px;color:var(--mu);font-style:normal;transform:translateY(-7px)}
+.col{flex:1;min-width:100px;border-left:1px solid var(--bd)}
+.dh{height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:1px solid var(--bd);line-height:1.2}.dh small{color:var(--mu)}
+.dc{position:relative;background-image:linear-gradient(var(--bd) 1px,transparent 1px);background-size:100% 46px}
+.ev{position:absolute;left:3px;right:3px;border-radius:8px;color:#fff;padding:3px 6px;font-size:11px;line-height:1.25;overflow:hidden}
+.ev b{display:block;font-weight:600}.ev span{opacity:.85}
+.ev.fx{background:var(--fx)}.ev.bs{background:var(--bs)}.ev.fl{background:var(--fl)}
+.leg{display:flex;gap:14px;font-size:12px;color:var(--mu);margin:10px 0;flex-wrap:wrap}.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+.ok{color:var(--ok)}.cf{margin:6px 0;padding:8px 12px;border-left:3px solid var(--er);background:var(--bg);border-radius:6px;font-size:13px}
+@media(max-width:560px){.foot{flex-direction:column-reverse}.foot span{display:none}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+const $=s=>document.querySelector(s);
+const D=[1,2,3,4,5,6,0],DN=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],DF=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+const STEPS=['Cadre','Contraintes fixes','Besoins de base','Activités','Planning'];
+const pd=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const mon=d=>{const x=new Date(d);x.setDate(x.getDate()-(x.getDay()+6)%7);x.setHours(0,0,0,0);return x};
+const t2m=t=>{const[h,m]=t.split(':').map(Number);return h*60+m};
+const m2t=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fd=(s,o)=>pd(s).toLocaleDateString('fr-FR',o||{day:'numeric',month:'long',year:'numeric'});
+/* Récurrence : calculée par le code, jamais par l’IA */
+function occurs(r,wk){if(!r||r.n<2)return true;const diff=Math.round((mon(pd(wk))-mon(pd(r.ref)))/6048e5);return((diff%r.n)+r.n)%r.n===0}
+const recLabel=r=>r.n>1?`1 semaine sur ${r.n} (réf. ${fd(r.ref,{day:'numeric',month:'short'})})`:'chaque semaine';
+
+const mon0=iso(mon(new Date()));
+const def=()=>({step:0,ok:[false,false,false,false],wk:mon0,cadre:{start:mon0,wake:'07:00',sleep:'23:00',days:[1,2,3,4,5,6,0]},fixed:[],base:[{n:'Petit-déjeuner',s:'07:30',d:30},{n:'Déjeuner',s:'12:30',d:60},{n:'Dîner',s:'19:30',d:60}],flex:[]});
+let S;try{S=JSON.parse(localStorage.getItem('edt1'))||def()}catch(e){S=def()}
+const save=()=>{try{localStorage.setItem('edt1',JSON.stringify(S))}catch(e){}};
+
+/* Moteur de planification */
+const W={m:[360,720],j:[720,840],a:[840,1080],s:[1080,1380],x:[0,1440]};
+function find(b,dur,pref,lo,hi){
+  for(const[w0,w1]of[W[pref]||W.x,[lo,hi]]){
+    const a=Math.max(lo,w0),z=Math.min(hi,w1);
+    for(let s=Math.ceil(a/15)*15;s+dur<=z;s+=15)if(b.every(([x,y])=>s+dur+10<=x||s>=y+10))return s;
+  }return null;
+}
+function plan(wk){
+  const lo=t2m(S.cadre.wake),hi=t2m(S.cadre.sleep),ev=[],conf=[],busy={};
+  const days=D.filter(d=>S.cadre.days.includes(d));days.forEach(d=>busy[d]=[]);
+  const add=(d,s,e,n,t)=>{ev.push({d,s,e,n,t});busy[d].push([s,e])};
+  S.fixed.forEach(f=>{if(occurs(f.r,wk))f.days.forEach(d=>{if(busy[d])add(d,t2m(f.s),t2m(f.e),f.n,'fx')})});
+  S.base.forEach(b=>days.forEach(d=>add(d,t2m(b.s),t2m(b.s)+b.d,b.n,'bs')));
+  days.forEach(d=>{const l=ev.filter(x=>x.d==d).sort((a,b)=>a.s-b.s);for(let i=1;i<l.length;i++)if(l[i].s<l[i-1].e)conf.push(`${DF[d]} : « ${l[i-1].n} » et « ${l[i].n} » se chevauchent.`)});
+  const load=d=>busy[d].reduce((a,[s,e])=>a+e-s,0);
+  S.flex.filter(f=>occurs(f.r,wk)).sort((a,b)=>b.p-a.p||b.d-a.d).forEach(f=>{
+    const used=new Set();
+    for(let k=0;k<f.t;k++){
+      let cand=days.filter(d=>!used.has(d));if(!cand.length)cand=days.slice();
+      cand.sort((a,b)=>load(a)-load(b));let ok=false;
+      for(const d of cand){const s=find(busy[d],f.d,f.m,lo,hi);if(s!=null){add(d,s,s+f.d,f.n,'fl');used.add(d);ok=true;break}}
+      if(!ok)conf.push(`« ${f.n} » : séance ${k+1}/${f.t} impossible à placer (${f.d} min).`);
+    }
+  });
+  return{ev,conf,lo,hi,days};
+}
+
+/* Interface */
+const chips=(cls,sel,oc)=>D.map(d=>`<label class="chip"><input type="checkbox" class="${cls}" value="${d}" ${sel&&sel.includes(d)?'checked':''} ${oc?`onchange="${oc}"`:''}><span>${DN[d]}</span></label>`).join('');
+const recF=p=>`<div class="row"><label>Répéter toutes les (semaines)<input id="${p}_n" type="number" min="1" max="12" value="1"></label><label>Semaine de référence<input id="${p}_ref" type="date" value="${S.cadre.start}"></label></div><p class="hint">1 = chaque semaine · 2 = une semaine sur deux · 3 = une sur trois… La référence est une semaine où l’activité a bien lieu.</p>`;
+const getR=p=>({n:Math.max(1,+$('#'+p+'_n').value||1),ref:$('#'+p+'_ref').value||S.cadre.start});
+const foot=()=>`<p id="msg" class="err"></p><div class="foot">${S.step>0?'<button class="gh" onclick="go(S.step-1)">← Retour</button>':'<span></span>'}<button class="pri" onclick="val()">${S.step==3?'Valider et générer le planning →':'Je valide cette étape →'}</button></div>`;
+
+function p0(){const c=S.cadre;return `<h2>1 · Le cadre</h2><p class="lead">Définissez votre période et vos horaires de journée.</p>
+<div class="row"><label>Date de début<input id="cs" type="date" value="${c.start}" onchange="setC()"></label><label>Réveil<input id="cw" type="time" value="${c.wake}" onchange="setC()"></label><label>Coucher<input id="ce" type="time" value="${c.sleep}" onchange="setC()"></label></div>
+<label class="lb">Jours planifiés</label><div class="chips">${chips('cd',c.days,'setC()')}</div>
+<p class="recap">Planning à partir du ${fd(c.start)}, de ${c.wake} à ${c.sleep}, ${c.days.length} jour(s) par semaine.</p>${foot()}`}
+
+function p1(){return `<h2>2 · Contraintes fixes</h2><p class="lead">Travail, cours, rendez-vous… ce qui ne bouge pas. Vous pouvez les répéter une semaine sur N.</p>
+${S.fixed.length?S.fixed.map((f,i)=>`<div class="li"><div><b>${esc(f.n)}</b><small>${f.days.map(d=>DN[d]).join(', ')} · ${f.s}–${f.e} · ${recLabel(f.r)}</small></div><button class="x" aria-label="Supprimer" onclick="del('fixed',${i})">✕</button></div>`).join(''):`<div class="empty">Aucune contrainte pour l’instant.<br><button class="sec" style="margin-top:8px" onclick="demo()">Charger un exemple</button></div>`}
+<div class="row"><label>Titre<input id="fn" placeholder="Ex. Travail"></label><label>Début<input id="fs" type="time" value="09:00"></label><label>Fin<input id="fe" type="time" value="12:00"></label></div>
+<div class="chips">${chips('fdy')}</div>${recF('f')}
+<button class="sec" onclick="addF()">+ Ajouter la contrainte</button>
+<p class="recap">${S.fixed.length} contrainte(s) fixe(s) enregistrée(s).</p>${foot()}`}
+
+function p2(){return `<h2>3 · Besoins de base</h2><p class="lead">Repas, pauses, sommeil… placés chaque jour avant tout le reste.</p>
+${S.base.map((b,i)=>`<div class="li"><div><b>${esc(b.n)}</b><small>${b.s} · ${b.d} min</small></div><button class="x" aria-label="Supprimer" onclick="del('base',${i})">✕</button></div>`).join('')}
+<div class="row"><label>Titre<input id="bn" placeholder="Ex. Pause café"></label><label>Heure<input id="bs" type="time" value="16:00"></label><label>Durée (min)<input id="bd" type="number" min="5" step="5" value="15"></label></div>
+<button class="sec" onclick="addB()">+ Ajouter</button>
+<p class="recap">${S.base.length} besoin(s) de base, appliqués à chaque jour planifié.</p>${foot()}`}
+
+function p3(){return `<h2>4 · Activités flexibles</h2><p class="lead">Sport, loisirs, ménage… le moteur les place dans les créneaux libres, selon vos préférences.</p>
+${S.flex.map((f,i)=>`<div class="li"><div><b>${esc(f.n)}</b><small>${f.t}×/semaine · ${f.d} min · priorité ${['','basse','moyenne','haute'][f.p]} · ${recLabel(f.r)}</small></div><button class="x" aria-label="Supprimer" onclick="del('flex',${i})">✕</button></div>`).join('')||'<div class="empty">Aucune activité pour l’instant.</div>'}
+<div class="row"><label>Titre<input id="xn" placeholder="Ex. Sport"></label><label>Durée (min)<input id="xd" type="number" min="5" step="5" value="60"></label><label>Fois par semaine<input id="xt" type="number" min="1" max="7" value="3"></label></div>
+<div class="row"><label>Moment préféré<select id="xm"><option value="x">Indifférent</option><option value="m">Matin</option><option value="j">Midi</option><option value="a">Après-midi</option><option value="s">Soir</option></select></label><label>Priorité<select id="xp"><option value="3">Haute</option><option value="2" selected>Moyenne</option><option value="1">Basse</option></select></label></div>
+${recF('x')}<button class="sec" onclick="addX()">+ Ajouter l’activité</button>
+<p class="recap">${S.flex.length} activité(s) à placer.</p>${foot()}`}
+
+function p4(){
+  const P=plan(S.wk),px=46,H=(P.hi-P.lo)/60*px,wd=pd(S.wk),off=((60-P.lo%60)%60)/60*px;
+  const cols=P.days.map(d=>{const dt=new Date(wd);dt.setDate(dt.getDate()+D.indexOf(d));
+    return `<div class="col"><div class="dh"><b>${DN[d]}</b><small>${dt.getDate()}/${dt.getMonth()+1}</small></div><div class="dc" style="height:${H}px;background-position:0 ${off}px">${P.ev.filter(e=>e.d==d).map(e=>`<div class="ev ${e.t}" style="top:${(Math.max(e.s,P.lo)-P.lo)/60*px}px;height:${Math.max(18,(e.e-e.s)/60*px-2)}px"><b>${esc(e.n)}</b><span>${m2t(e.s)}–${m2t(e.e)}</span></div>`).join('')}</div></div>`}).join('');
+  let hrs='';for(let m=Math.ceil(P.lo/60)*60;m<P.hi;m+=60)hrs+=`<i style="top:${(m-P.lo)/60*px}px">${m/60}h</i>`;
+  const rc=[...S.fixed,...S.flex].filter(x=>x.r.n>1).map(x=>{const o=occurs(x.r,S.wk);return `<span class="tag ${o?'on':''}">${esc(x.n)} · ${o?'cette semaine':'pas cette semaine'}</span>`}).join('');
+  return `<div class="bar"><h2>Semaine du ${fd(S.wk)}</h2><div><button class="gh" onclick="nav(-1)" aria-label="Semaine précédente">‹</button> <button class="gh" onclick="nav(0)">Cette semaine</button> <button class="gh" onclick="nav(1)" aria-label="Semaine suivante">›</button></div></div>
+${rc?`<div class="tags">${rc}</div>`:''}
+<div class="wrap"><div class="grid"><div class="hr" style="height:${H}px">${hrs}</div>${cols}</div></div>
+<div class="leg"><span><i style="background:var(--fx)"></i>Contraintes fixes</span><span><i style="background:var(--bs)"></i>Besoins de base</span><span><i style="background:var(--fl)"></i>Activités flexibles</span></div>
+${P.conf.length?`<h2 style="font-size:15px">Points d’attention (${P.conf.length})</h2>${[...new Set(P.conf)].map(c=>`<div class="cf">${esc(c)}</div>`).join('')}`:'<p class="ok">✓ Aucun conflit détecté cette semaine.</p>'}
+<div class="foot"><button class="gh" onclick="go(3)">← Modifier les activités</button><button class="gh" onclick="reset()">Tout réinitialiser</button></div>`}
+
+function render(){save();const st=S.step;
+  $('#app').innerHTML=`<header><div class="logo">🗓️</div><div><h1>Planificateur d’emploi du temps</h1><p>Construisez votre semaine type, étape par étape.</p></div></header>
+<nav class="steps">${STEPS.map((n,i)=>`<button class="st ${i==st?'on':''} ${S.ok[i]?'done':''}" ${i<=st||S.ok.slice(0,i).every(Boolean)?'':'disabled'} onclick="go(${i})"><span>${S.ok[i]?'✓':i+1}</span>${n}</button>`).join('')}</nav>
+<section class="card">${[p0,p1,p2,p3,p4][st]()}</section>`;}
+function go(i){S.step=i;render()}
+function val(){const c=S.cadre,m=$('#msg');
+  if(S.step==0){if(!c.days.length){m.textContent='Choisissez au moins un jour.';return}if(t2m(c.wake)>=t2m(c.sleep)){m.textContent='Le réveil doit être avant le coucher.';return}}
+  S.ok[S.step]=true;S.step++;render()}
+function setC(){const c=S.cadre;c.start=$('#cs').value||c.start;c.wake=$('#cw').value||c.wake;c.sleep=$('#ce').value||c.sleep;c.days=[...document.querySelectorAll('.cd:checked')].map(x=>+x.value);S.wk=iso(mon(pd(c.start)));S.ok[0]=false;save()}
+function addF(){const n=$('#fn').value.trim(),days=[...document.querySelectorAll('.fdy:checked')].map(x=>+x.value),s=$('#fs').value,e=$('#fe').value,m=$('#msg');
+  if(!n||!days.length||!s||!e){m.textContent='Renseignez un titre, des jours et des horaires.';return}
+  if(t2m(s)>=t2m(e)){m.textContent='La fin doit être après le début.';return}
+  S.fixed.push({n,days,s,e,r:getR('f')});S.ok[1]=false;render()}
+function addB(){const n=$('#bn').value.trim(),s=$('#bs').value,d=+$('#bd').value;
+  if(!n||!s||!d){$('#msg').textContent='Renseignez un titre, une heure et une durée.';return}
+  S.base.push({n,s,d});S.ok[2]=false;render()}
+function addX(){const n=$('#xn').value.trim(),d=+$('#xd').value,t=+$('#xt').value;
+  if(!n||!d||!t){$('#msg').textContent='Renseignez un titre, une durée et une fréquence.';return}
+  S.flex.push({n,d,t,m:$('#xm').value,p:+$('#xp').value,r:getR('x')});S.ok[3]=false;render()}
+function del(k,i){S[k].splice(i,1);S.ok[S.step]=false;render()}
+function nav(n){if(!n)S.wk=mon0;else{const d=pd(S.wk);d.setDate(d.getDate()+7*n);S.wk=iso(d)}render()}
+function reset(){S=def();render()}
+function demo(){const r=n=>({n,ref:S.cadre.start}),w={n:1,ref:S.cadre.start};
+  S.fixed=[{n:'Travail',days:[1,2,3,4,5],s:'09:00',e:'12:00',r:w},{n:'Travail',days:[1,2,3,4,5],s:'14:00',e:'17:30',r:w},{n:'Cours de danse',days:[2],s:'18:30',e:'20:00',r:r(3)},{n:'Atelier poterie',days:[6],s:'14:00',e:'17:00',r:r(2)}];
+  S.flex=[{n:'Sport',d:60,t:3,m:'s',p:3,r:w},{n:'Lecture',d:30,t:4,m:'s',p:1,r:w},{n:'Ménage',d:90,t:1,m:'a',p:2,r:r(2)}];render()}
+render();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
